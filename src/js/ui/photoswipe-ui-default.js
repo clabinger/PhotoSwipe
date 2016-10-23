@@ -83,6 +83,9 @@ var PhotoSwipeUI_Default =
 			getImageURLForShare: function( /* shareButtonData */ ) {
 				return pswp.currItem.src || '';
 			},
+			getFullImageURLForShare: function( /* shareButtonData */ ) {
+				return pswp.currItem.fsrc || '';
+			},
 			getPageURLForShare: function( /* shareButtonData */ ) {
 				return window.location.href;
 			},
@@ -222,6 +225,7 @@ var PhotoSwipeUI_Default =
 				shareButtonData,
 				shareURL,
 				image_url,
+				full_image_url,
 				page_url,
 				share_text;
 
@@ -229,12 +233,14 @@ var PhotoSwipeUI_Default =
 				shareButtonData = _options.shareButtons[i];
 
 				image_url = _options.getImageURLForShare(shareButtonData);
+				full_image_url = _options.getFullImageURLForShare(shareButtonData);
 				page_url = _options.getPageURLForShare(shareButtonData);
 				share_text = _options.getTextForShare(shareButtonData);
 
 				shareURL = shareButtonData.url.replace('{{url}}', encodeURIComponent(page_url) )
 									.replace('{{image_url}}', encodeURIComponent(image_url) )
 									.replace('{{raw_image_url}}', image_url )
+									.replace('{{raw_full_image_url}}', full_image_url )
 									.replace('{{text}}', encodeURIComponent(share_text) );
 
 				shareButtonOut += '<a href="' + shareURL + '" target="_blank" '+
