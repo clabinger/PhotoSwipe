@@ -1,4 +1,4 @@
-/*! PhotoSwipe Default UI - 4.1.1 - 2016-10-23
+/*! PhotoSwipe Default UI - 4.1.1 - 2016-10-24
 * http://photoswipe.com
 * Copyright (c) 2016 Dmitry Semenov; */
 /**
@@ -18,6 +18,63 @@
 })(this, function () {
 
 	'use strict';
+
+
+
+function copyTextToClipboard(text) {
+  var textArea = $("<textarea></textarea>");
+
+  // http://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
+  // *** This styling is an extra step which is likely not required. ***
+  //
+  // Why is it here? To ensure:
+  // 1. the element is able to have focus and selection.
+  // 2. if element was to flash render it has minimal visual impact.
+  // 3. less flakyness with selection and copying which **might** occur if
+  //    the textarea element is not visible.
+  //
+  // The likelihood is the element won't even render, not even a flash,
+  // so some of these are just precautions. However in IE the element
+  // is visible whilst the popup box asking the user for permission for
+  // the web page to copy to the clipboard.
+  //
+
+  textArea.css({
+    // Place in top-left corner of screen regardless of scroll position.
+    position: 'fixed',
+    top: 0,
+    left: 0,
+
+    // Ensure it has a small width and height. Setting to 1px / 1em doesn't work as this gives a negative w/h on some browsers.
+    width: '2em',
+    height: '2em',
+    
+    // We don't need padding, reducing the size if it does flash render.
+    padding: 0,
+    
+    // CLean up any borders.
+    border: 'none',
+    outline: 'none',
+    boxShadow: 'none',
+
+    // Avoid flash of white box if rendered for any reason.
+    background: 'transparent',
+  }).val(text);
+
+
+  $('body').append(textArea);
+
+  textArea.select();
+
+  try {
+    var successful = document.execCommand('copy');
+    var msg = successful ? 'successful' : 'unsuccessful';
+  } catch (err) {
+  	window.prompt('Press Ctrl + C or Cmd + C to copy.', text);
+  }
+
+  $(textArea).remove();
+}
 
 
 
@@ -241,15 +298,18 @@ var PhotoSwipeUI_Default =
 				share_text = _options.getTextForShare(shareButtonData);
 
 				shareURL = shareButtonData.url.replace('{{url}}', encodeURIComponent(page_url) )
+									.replace('{{raw_url}}', page_url )
 									.replace('{{image_url}}', encodeURIComponent(image_url) )
 									.replace('{{raw_image_url}}', image_url )
 									.replace('{{raw_full_image_url}}', full_image_url )
 									.replace('{{text}}', encodeURIComponent(share_text) );
 
-				shareButtonOut += '<a href="' + shareURL + '" target="_blank" '+
-									'class="pswp__share--' + shareButtonData.id + '"' +
-									(shareButtonData.download ? 'download' : '') + '>' + 
-									shareButtonData.label + '</a>';
+				shareButtonOut += '<a ' +
+								(shareButtonData.action==='copy' ? '':'href="' + shareURL + '" target="_blank" ') +
+								'class="pswp__share--' + shareButtonData.id + ' '+(shareButtonData.action==='copy' ? 'copy-to-clipboard':'')+'"' +
+								(shareButtonData.action==='copy' ? 'copy_content="' + page_url + '"':'') +
+								(shareButtonData.download ? 'download' : '') + '>' + 
+								shareButtonData.label + '</a>';
 
 				if(_options.parseShareButtonOut) {
 					shareButtonOut = _options.parseShareButtonOut(shareButtonData, shareButtonOut);
@@ -726,6 +786,17 @@ var PhotoSwipeUI_Default =
 	ui.onGlobalTap = function(e) {
 		e = e || window.event;
 		var target = e.target || e.srcElement;
+
+		var do_copy_clipboard = function(){
+			if ( (" " + target.className + " ").replace(/[\n\t]/g, " ").indexOf(" copy-to-clipboard ") > -1 ){
+				var contents = target.innerHTML
+				target.innerHTML = 'Copied!';
+				var t = setTimeout(function(){ target.innerHTML = contents; }, 2000);
+				copyTextToClipboard(target.getAttribute('copy_content'));
+			}
+		};
+
+		do_copy_clipboard();
 
 		if(_blockControlsTap) {
 			return;
