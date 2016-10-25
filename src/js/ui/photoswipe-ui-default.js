@@ -155,8 +155,8 @@ var PhotoSwipeUI_Default =
 
 		},
 		_blockControlsTap,
-		_blockControlsTapTimeout;
-
+		_blockControlsTapTimeout,
+		_copyTimeout;
 
 
 	var _onControlsTap = function(e) {
@@ -303,8 +303,8 @@ var PhotoSwipeUI_Default =
 
 				shareButtonOut += '<a ' +
 								(shareButtonData.action==='copy' ? '':'href="' + shareURL + '" target="_blank" ') +
-								'class="pswp__share--' + shareButtonData.id + ' '+(shareButtonData.action==='copy' ? 'copy-to-clipboard':'')+'"' +
-								(shareButtonData.action==='copy' ? 'copy_content="' + page_url + '"':'') +
+								'class="'+(shareButtonData.action==='copy' ? 'pswp__share--download copy-to-clipboard':'pswp__share--' + shareButtonData.id + '')+'" ' +
+								(shareButtonData.action==='copy' ? 'contents="' + shareButtonData.label.replace(/"/g,'&#34;') + '" copy_content="' + page_url + '"':'') +
 								(shareButtonData.download ? 'download' : '') + '>' + 
 								shareButtonData.label + '</a>';
 
@@ -786,9 +786,9 @@ var PhotoSwipeUI_Default =
 
 		var do_copy_clipboard = function(){
 			if ( (" " + target.className + " ").replace(/[\n\t]/g, " ").indexOf(" copy-to-clipboard ") > -1 ){
-				var contents = target.innerHTML
 				target.innerHTML = 'Copied!';
-				var t = setTimeout(function(){ target.innerHTML = contents; }, 2000);
+				clearTimeout(_copyTimeout);
+				_copyTimeout = setTimeout(function(){ target.innerHTML = target.getAttribute('contents'); }, 2000);
 				copyTextToClipboard(target.getAttribute('copy_content'));
 			}
 		};
