@@ -1,6 +1,6 @@
-/*! PhotoSwipe - v4.1.1 - 2016-10-25
+/*! PhotoSwipe - v4.1.1 - 2019-12-29
 * http://photoswipe.com
-* Copyright (c) 2016 Dmitry Semenov; */
+* Copyright (c) 2019 Dmitry Semenov; */
 (function (root, factory) { 
 	if (typeof define === 'function' && define.amd) {
 		define(factory);
@@ -150,7 +150,7 @@ var framework = {
 		// IE8 and below
 		features.oldIE = document.all && !document.addEventListener;
 
-		features.touch = 'ontouchstart' in window;
+		features.touch = 'ontouchstart' in document.documentElement || navigator.maxTouchPoints > 0;
 
 		if(window.requestAnimationFrame) {
 			features.raf = window.requestAnimationFrame;

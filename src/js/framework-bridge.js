@@ -133,7 +133,7 @@ var framework = {
 		// IE8 and below
 		features.oldIE = document.all && !document.addEventListener;
 
-		features.touch = 'ontouchstart' in window;
+		features.touch = 'ontouchstart' in document.documentElement || navigator.maxTouchPoints > 0;
 
 		if(window.requestAnimationFrame) {
 			features.raf = window.requestAnimationFrame;
